@@ -9,7 +9,7 @@
     "application": False,
 
     "author": "IT-Projects LLC, Dinar Gabbasov",
-    "support": "pos@it-projects.info",
+    "version": "11.0.1.1.1",
     "website": "https://twitter.com/gabbasov_dinar",
     "license": "LGPL-3",
     "price": 510.00,
