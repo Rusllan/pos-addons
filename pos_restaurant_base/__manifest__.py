@@ -6,7 +6,7 @@
     # "live_test_URL": "",
     "images": [],
     "version": "10.0.2.0.4",
-    "application": False,
+    "version": "11.0.2.0.4",
 
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",

@@ -10,7 +10,7 @@
     "images": ["images/pos_orders_return_main.jpg"],
     "version": "10.0.1.0.1",
     "application": False,
-
+    "version": "11.0.1.0.1",
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",
     "website": "https://it-projects.info/team/GabbasovDinar",

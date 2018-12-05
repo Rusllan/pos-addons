@@ -5,7 +5,7 @@
     "category": "Point of Sale",
     "images": ['images/pos_printer_network_main.png'],
     "version": "10.0.2.0.0",
-    "application": False,
+    "version": "11.0.2.0.0",
 
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",

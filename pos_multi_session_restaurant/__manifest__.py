@@ -12,7 +12,7 @@
     "images": ['images/s2.png'],
     "version": "10.0.3.2.5",
     "application": False,
-
+    "version": "11.0.3.2.5",
     "author": "IT-Projects LLC, Ivan Yelizariev",
     "support": "pos@it-projects.info",
     "website": "https://yelizariev.github.io",

@@ -6,7 +6,7 @@
     'live_test_url': 'http://apps.it-projects.info/shop/product/internal-credit-system?version=10.0',
     "images": ['images/credit.png'],
     "version": "10.0.1.1.1",
-    "application": False,
+    "version": "11.0.1.1.1",
 
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",
