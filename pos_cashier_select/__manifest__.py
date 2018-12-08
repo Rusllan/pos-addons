@@ -5,7 +5,7 @@
     "category": "Point of Sale",
     "images": ['images/pos_cashier_select.png'],
     "version": "10.0.1.0.0",
-    "application": False,
+    "version": "11.0.1.0.0",
 
     "author": "IT-Projects LLC, Artyom Losev",
     "support": "pos@it-projects.info",
