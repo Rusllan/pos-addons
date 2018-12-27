@@ -17,7 +17,7 @@ odoo.define('pos_multi_session', function(require){
     var bus = require('bus.bus');
     var chrome = require('point_of_sale.chrome');
     var longpolling = require('pos_longpolling');
-    var Model = require('web.Model');
+    var rpc = require('web.rpc');
     var PosBaseWidget = require('point_of_sale.BaseWidget');
     var gui = require('point_of_sale.gui');
     var framework = require('web.framework');
@@ -208,7 +208,7 @@ odoo.define('pos_multi_session', function(require){
             }
         },
         ms_my_info: function(){
-            var user = this.cashier || this.user;
+            var user = this.get_cashier() || this.user;
             return {
                 'user': {
                     'id': user.id,
@@ -334,37 +334,14 @@ odoo.define('pos_multi_session', function(require){
                 this.set('selectedOrder', current_order);
             }
         },
-        ms_create_order: function(options){
+        ms_create_order: function(options) {
             options = _.extend({pos: this}, options || {});
             var order = new models.Order({}, options);
             return order;
         },
-        ms_update_order: function(order, data){
-            if (order && order.finalized) {
-                // if true, cannot be modified. - According to Odoo
-                return;
-            }
+        ms_update_existing_order: function(order, data) {
+            // update existing order
             var pos = this;
-            this.pos_session.order_ID = data.sequence_number;
-            if (order){
-                // init_locked blocks execution of save_to_db
-                order.init_locked = true;
-                order.apply_ms_data(data);
-            } else {
-                var create_new_order = pos.config.multi_session_accept_incoming_orders || !(data.ms_info && data.ms_info.created.user.id !== pos.ms_my_info().user.id);
-                if (!create_new_order){
-                    return;
-                }
-                var json = _.extend(data, {
-                    order_on_server: true,
-                });
-                order = this.ms_create_order({ms_info:data.ms_info, revision_ID:data.revision_ID, json: json});
-                var current_order = this.get_order();
-                this.get('orders').add(order);
-                this.ms_on_add_order(current_order);
-                order.set_orderlines_offline();
-                return;
-            }
             var not_found = order.orderlines.map(function(r){
                 return r.uid;
             });
@@ -429,28 +406,61 @@ odoo.define('pos_multi_session', function(require){
                 order.trigger('new_updates_to_send');
             }
         },
+        ms_update_order: function(order, data) {
+            if (order && order.finalized) {
+                // if true, cannot be modified. - According to Odoo
+                return;
+            }
+            var pos = this;
+            this.pos_session.order_ID = data.sequence_number;
+            if (order){
+                // init_locked blocks execution of save_to_db
+                order.init_locked = true;
+                order.apply_ms_data(data);
+                this.ms_update_existing_order(order, data);
+            } else {
+                var create_new_order = pos.config.multi_session_accept_incoming_orders || !(data.ms_info && data.ms_info.created.user.id !== pos.ms_my_info().user.id);
+                if (!create_new_order){
+                    return;
+                }
+                var json = _.extend(data, {
+                    order_on_server: true,
+                });
+                order = this.ms_create_order({ms_info:data.ms_info, revision_ID:data.revision_ID, json: json});
+                if (order) {
+                    var current_order = this.get_order();
+                    this.get('orders').add(order);
+                    this.ms_on_add_order(current_order);
+                    order.set_orderlines_offline();
+                }
+                return;
+            }
+        },
         load_new_partners_by_id: function(partner_id){
             var self = this;
             var def = new $.Deferred();
             var fields = _.find(this.models,function(model){
                 return model.model === 'res.partner';
             }).fields;
-            new Model('res.partner').
-                query(fields).
-                filter([['id','=',partner_id]]).
-                all({'timeout':3000, 'shadow': true}).
-                then(function(partners){
+            var domain = [['id','=',partner_id]];
+            rpc.query({
+                    model: 'res.partner',
+                    method: 'search_read',
+                    args: [domain, fields],
+                }, {
+                    timeout: 3000,
+                    shadow: true,
+                }).then(function(partners){
                      // check if the partners we got were real updates
                     if (self.db.add_partners(partners)) {
                         def.resolve();
                     } else {
                         def.reject();
                     }
-                }, function(err,event){
+                }, function(type,err){
                     if (err) {
                         console.log(err);
                     }
-                    event.preventDefault();
                     def.reject();
                 });
             return def;
@@ -616,8 +626,8 @@ odoo.define('pos_multi_session', function(require){
                 this.pos.pos_session.order_ID = this.pos.pos_session.order_ID + 1;
                 this.trigger('change:update_new_order');
             } else {
-                // 'change' trigger saves order to db
-                this.trigger('change');
+                // save order to the local storage
+                this.save_to_db();
             }
             if (!this.ms_active()){
                 return;
@@ -899,7 +909,7 @@ odoo.define('pos_multi_session', function(require){
                 if (options.address) {
                     temp = options.address.serv;
                 }
-                return openerp.session.rpc(temp + "/pos_multi_session_sync/update", {
+                return session.rpc(temp + "/pos_multi_session_sync/update", {
                     multi_session_id: self.pos.config.multi_session_id[0],
                     message: message,
                     dbname: session.db,

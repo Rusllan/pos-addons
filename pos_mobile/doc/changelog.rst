@@ -1,3 +1,14 @@
+`1.1.10`
+-------
+
+**Improvement:** Scrolling of Product list after remove the current order
+**Improvement:** Scroll to a selected order after removing the current order
+
+`1.1.9`
+-------
+
+**Improvement:** Scrolling of Order list
+
 `1.1.8`
 -------
 
