@@ -6,12 +6,7 @@
     "name": """Internal Credit System""",
     "summary": """Credit payment system for festivals, food courts, etc.""",
     "category": "Point of Sale",
-    'live_test_url': 'http://apps.it-projects.info/shop/product/internal-credit-system?version=10.0',
-    "images": ['images/credit.png'],
-    "version": "11.0.1.1.1",
-    "application": False,
-
-    "author": "IT-Projects LLC, Dinar Gabbasov",
+asov",
     "support": "pos@it-projects.info",
     "website": "https://twitter.com/gabbasov_dinar",
     "license": "LGPL-3",

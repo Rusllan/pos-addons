@@ -6,7 +6,7 @@
     "images": ["images/pos_mobile.png"],
     "version": "11.0.1.1.10",
     "application": False,
-
+    "version": "11.0.1.1.9",
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",
     "website": "https://it-projects.info/team/GabbasovDinar",

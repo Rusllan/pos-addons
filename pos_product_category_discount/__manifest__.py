@@ -6,7 +6,7 @@
     "images": ['images/dp3.png'],
     "version": "11.0.1.2.5",
     "application": False,
-
+    "version": "11.0.1.2.5",
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",
     "website": "https://it-projects.info/team/GabbasovDinar",
