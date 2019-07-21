@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
 {
     "name": """Print certain products on Order Printers""",
     "summary": """Specify certain products to be allowed to print on order printers""",
     "category": "Point of Sale",
-    # "live_test_URL": "",
-    "images": ['images/pos_order_printer_product_main.png'],
-    "version": "10.0.1.0.0",
-    "version": "11.0.1.0.0",
+
 
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",
@@ -27,6 +23,7 @@
     "qweb": [
     ],
     "demo": [
+        "data/pos_order_printer_product_demo.xml",
     ],
 
     "post_load": None,

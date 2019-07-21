@@ -2,7 +2,6 @@ odoo.define('pos_product_category_discount.models', function (require) {
     "use strict";
 
     var models = require('point_of_sale.models');
-    var Model = require('web.Model');
 
     models.load_models({
         model: 'pos.discount_program',
@@ -41,7 +40,7 @@ odoo.define('pos_product_category_discount.models', function (require) {
             });
         },
         set_discount_categories_by_program_id: function(id) {
-            if (this.config.iface_discount) {
+            if (this.config.module_pos_discount && this.config.discount_product_id) {
                 var self = this;
                 var discount_categories = this.get_discount_categories(id);
                 var order = this.get_order();
@@ -67,13 +66,14 @@ odoo.define('pos_product_category_discount.models', function (require) {
                 line.set_discount(discount.category_discount_pc);
             });
             order.discount_program_id = discount.discount_program_id[0];
+            order.discount_program_name = discount.discount_program_id[1];
         },
     });
 
     var OrderSuper = models.Order;
     models.Order = models.Order.extend({
         remove_all_discounts: function() {
-            if (this.pos.config.iface_discount) {
+            if (this.pos.config.module_pos_discount && this.pos.config.discount_product_id) {
                 this.discount_program_id = false;
                 this.get_orderlines().forEach(function(line){
                     if (line.discount_program_name) {
@@ -86,6 +86,7 @@ odoo.define('pos_product_category_discount.models', function (require) {
             var json = OrderSuper.prototype.export_as_JSON.call(this);
             json.product_discount = this.product_discount || false;
             json.discount_program_id = this.discount_program_id;
+            json.discount_program_name = this.discount_program_name;
             json.discount_percent = this.discount_percent;
             return json;
         },
@@ -93,6 +94,7 @@ odoo.define('pos_product_category_discount.models', function (require) {
             OrderSuper.prototype.init_from_JSON.apply(this,arguments);
             this.product_discount = json.product_discount || false;
             this.discount_program_id = json.discount_program_id;
+            this.discount_program_name = json.discount_program_name;
             this.discount_percent = json.discount_percent;
         },
     });
