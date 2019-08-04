@@ -6,7 +6,7 @@
     "images": ["images/pos_mobile_restaurant.png"],
     "version": "11.0.1.3.8",
     "application": False,
-
+    "version": "11.0.1.3.7",
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",
     "website": "https://it-projects.info/team/GabbasovDinar",
