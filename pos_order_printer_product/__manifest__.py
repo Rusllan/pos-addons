@@ -1,10 +1,7 @@
 {
     "name": """Print certain products on Order Printers""",
     "summary": """Specify certain products to be allowed to print on order printers""",
-    "category": "Point of Sale",
-
-
-    "author": "IT-Projects LLC, Dinar Gabbasov",
+    "category": "Point of Sale",",
     "support": "pos@it-projects.info",
     "website": "https://twitter.com/gabbasov_dinar",
     "license": "LGPL-3",

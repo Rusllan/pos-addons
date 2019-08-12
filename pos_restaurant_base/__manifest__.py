@@ -1,8 +1,7 @@
 {
     "name": """POS restaurant base""",
     "summary": """Technical module in POS""",
-    "category": "Point of Sale",
-ojects LLC, Dinar Gabbasov",
+    
     "support": "pos@it-projects.info",
     "website": "https://twitter.com/gabbasov_dinar",
     "license": "LGPL-3",

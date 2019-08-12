@@ -3,11 +3,6 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 {
-    "name": """Internal Credit System""",
-    "summary": """Credit payment system for festivals, food courts, etc.""",
-    "category": "Point of Sale",
-asov",
-    "support": "pos@it-projects.info",
     "website": "https://twitter.com/gabbasov_dinar",
     "license": "LGPL-3",
     "price": 510.00,

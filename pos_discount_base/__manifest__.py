@@ -1,8 +1,6 @@
 {
     "name": """POS discount base""",
-    "summary": """Technical module in POS""",
-    "category": "Point of Sale",
-
+    "summary": """T
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",
     "website": "https://twitter.com/gabbasov_dinar",

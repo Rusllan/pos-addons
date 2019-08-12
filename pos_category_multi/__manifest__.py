@@ -1,7 +1,4 @@
-{
- 
-    "price": 15.00,
-    "currency": "EUR",
+
 
     "depends": [
         'point_of_sale',
