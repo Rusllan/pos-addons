@@ -33,8 +33,16 @@ Roadmap
   * It creates extra record in accounting system (pos.order.line). It can be used as a backup for *Manual Updates*
   * It works with following problem case:
   
-        In case of purchasing products with taxes not included in the price, such journals cannot be used along with normal payments
+    In case of purchasing products with taxes not included in the price, such journals cannot be used along with normal payments
 
+* TODO. Improvements on heavy usage (Many POSes, Many Partners)
+
+  * Num of users with cached Debt History must be limited
+  * Limit issue in ``reload_debts`` (check FIXME note there)
+  * Many POSes do the same requests on getting updates from longpolling. Solution:
+  
+    * Customizable timeout in ``on_debt_updates`` method in ``pos_debt_notebook_sync`` module.
+    * ``reload_debts`` called with ``"postpone": false`` must ignore existing timer
 
 Credits
 =======

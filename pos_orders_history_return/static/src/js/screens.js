@@ -1,5 +1,5 @@
 /* Copyright 2018 Dinar Gabbasov <https://it-projects.info/team/GabbasovDinar>
-   Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
+ * Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
  * License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html). */
 odoo.define('pos_orders_history_return.screens', function (require) {
     "use strict";
@@ -16,14 +16,18 @@ odoo.define('pos_orders_history_return.screens', function (require) {
             var self = this;
             this._super();
             if (this.pos.config.return_orders) {
-                this.$('.actions.oe_hidden').removeClass('oe_hidden');
-                this.$('.button.return').unbind('click');
-                this.$('.button.return').click(function (e) {
-                    var parent = $(this).parents('.order-line');
-                    var id = parseInt(parent.data('id'));
-                    self.click_return_order_by_id(id);
-                });
+                this.set_return_action();
             }
+        },
+        set_return_action: function() {
+            var self = this;
+            this.$('.actions.oe_hidden').removeClass('oe_hidden');
+            this.$('.button.return').unbind('click');
+            this.$('.button.return').click(function (e) {
+                var parent = $(this).parents('.order-line');
+                var id = parseInt(parent.data('id'));
+                self.click_return_order_by_id(id);
+            });
         },
         renderElement: function() {
             this._super();
@@ -46,11 +50,16 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                 });
             }
             this._super(orders);
+            if (this.pos.config.return_orders) {
+                this.set_return_action();
+            }
         },
         click_return_order_by_id: function(id) {
             var self = this;
             var order = self.pos.db.orders_history_by_id[id];
-            var uid = order.pos_reference.split(' ')[1];
+            var uid = order.pos_reference &&
+                    order.pos_reference.match(/\d{1,}-\d{1,}-\d{1,}/g) &&
+                    order.pos_reference.match(/\d{1,}-\d{1,}-\d{1,}/g)[0];
             var split_sequence_number = uid.split('-');
             var sequence_number = split_sequence_number[split_sequence_number.length - 1];
 
@@ -114,7 +123,9 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                 json.mode = "return";
                 json.return_lines = lines;
                 json.pricelist_id = this.pos.default_pricelist.id;
-
+                if (order.table_id) {
+                    json.table_id = order.table_id[0];
+                }
                 var options = _.extend({pos: this.pos}, {json: json});
                 order = new models.Order({}, options);
                 order.temporary = true;
@@ -127,7 +138,7 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                 }
                 order.set_client(client);
                 this.pos.get('orders').add(order);
-                this.pos.gui.back();
+                this.pos.gui.show_screen('products');
                 this.pos.set_order(order);
                 product_list_widget.set_product_list(products);
             } else {
