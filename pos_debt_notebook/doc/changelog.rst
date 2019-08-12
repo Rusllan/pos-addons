@@ -1,6 +1,9 @@
+`5.1.1`
+-------
+- **FIX:** Compatibility with pos_orders_history_return module
+
 `5.1.0`
 -------
-
 - **NEW:** Wizard allow to create invoices for sets of partners: `Balance update`, `New Balance`
 - **FIX:** Error related to paying with not discount credit journals in POS
 - **FIX:** Invoices paid with credit journals now counts in partner debts

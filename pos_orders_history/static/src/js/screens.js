@@ -1,5 +1,6 @@
 /* Copyright 2017-2018 Dinar Gabbasov <https://it-projects.info/team/GabbasovDinar>
  * Copyright 2018 Artem Losev
+ * Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
  * License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html). */
 odoo.define('pos_orders_history.screens', function (require) {
     "use strict";
@@ -11,9 +12,7 @@ odoo.define('pos_orders_history.screens', function (require) {
     screens.OrdersHistoryButton = screens.ActionButtonWidget.extend({
         template: 'OrdersHistoryButton',
         button_click: function () {
-            if (this.pos.db.pos_orders_history.length) {
-                this.gui.show_screen('orders_history_screen');
-            }
+            this.gui.show_screen('orders_history_screen');
         },
     });
     screens.define_action_button({
@@ -150,6 +149,10 @@ odoo.define('pos_orders_history.screens', function (require) {
                     return !order.table_id;
                 });
             }
+        },
+        get_datetime_format: function(datetime) {
+            var d = new Date(datetime);
+            return new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toLocaleString();
         },
         render_list: function(orders) {
             var contents = this.$el[0].querySelector('.order-list-contents');
@@ -309,7 +312,9 @@ odoo.define('pos_orders_history.screens', function (require) {
         barcode_product_action: function(code) {
             // TODO: Check it
             var order = this.pos.db.get_sorted_orders_history(1000).find(function(o) {
-                var pos_reference = o.pos_reference.split(' ')[1].replace(/\-/g, '');
+                var pos_reference = o.pos_reference &&
+                    o.pos_reference.match(/\d{1,}-\d{1,}-\d{1,}/g) &&
+                    o.pos_reference.match(/\d{1,}-\d{1,}-\d{1,}/g)[0].replace(/\-/g, '');
                 return pos_reference === code.code.replace(/\-/g, '');
             });
             var screen_name = this.gui.get_current_screen();

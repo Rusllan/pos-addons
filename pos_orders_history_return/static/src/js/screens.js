@@ -1,4 +1,5 @@
 /* Copyright 2018 Dinar Gabbasov <https://it-projects.info/team/GabbasovDinar>
+ * Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
  * License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html). */
 odoo.define('pos_orders_history_return.screens', function (require) {
     "use strict";
@@ -49,7 +50,9 @@ odoo.define('pos_orders_history_return.screens', function (require) {
         click_return_order_by_id: function(id) {
             var self = this;
             var order = self.pos.db.orders_history_by_id[id];
-            var uid = order.pos_reference.split(' ')[1];
+            var uid = order.pos_reference &&
+                    order.pos_reference.match(/\d{1,}-\d{1,}-\d{1,}/g) &&
+                    order.pos_reference.match(/\d{1,}-\d{1,}-\d{1,}/g)[0];
             var split_sequence_number = uid.split('-');
             var sequence_number = split_sequence_number[split_sequence_number.length - 1];
 
@@ -71,10 +74,15 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                 lines.push(self.pos.db.line_by_id[line_id]);
             });
 
+            var product_list_widget = this.pos.chrome.screens.products.product_list_widget;
+
             var products = [];
             var current_products_qty_sum = 0;
             lines.forEach(function(line) {
                 var product = self.pos.db.get_product_by_id(line.product_id[0]);
+                if (line.price_unit !== product.price) {
+                    product.old_price = line.price_unit;
+                }
                 current_products_qty_sum +=line.qty;
                 products.push(product);
             });
@@ -96,6 +104,8 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                 return false;
             }
 
+            var partner_id = order.partner_id || false;
+
             if (products.length > 0) {
                 // create new order for return
                 var json = _.extend({}, order);
@@ -105,14 +115,23 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                 json.statement_ids = [];
                 json.mode = "return";
                 json.return_lines = lines;
+                json.table_id = order.table_id[0];
 
                 var options = _.extend({pos: this.pos}, {json: json});
                 order = new models.Order({}, options);
                 order.temporary = true;
+                var client = null;
+                if (partner_id) {
+                    client = this.pos.db.get_partner_by_id(partner_id[0]);
+                    if (!client) {
+                        console.error('ERROR: trying to load a parner not available in the pos');
+                    }
+                }
+                order.set_client(client);
                 this.pos.get('orders').add(order);
-                this.pos.gui.back();
+                this.pos.gui.show_screen('products');
                 this.pos.set_order(order);
-                this.pos.chrome.screens.products.product_list_widget.set_product_list(products);
+                product_list_widget.set_product_list(products);
             } else {
                 this.pos.gui.show_popup('error', _t('Order Is Empty'));
             }
@@ -133,6 +152,7 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                         o.lines.forEach(function(line_id) {
                             var line = self.pos.db.line_by_id[line_id];
                             var product = self.pos.db.get_product_by_id(line.product_id[0]);
+
                             var exist_product = products.find(function(r){
                                 return r.id === product.id;
                             });
@@ -140,6 +160,9 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                                 exist_product.max_return_qty += line.qty;
                             } else {
                                 product.max_return_qty = line.qty;
+                                if (line.price_unit !== product.price) {
+                                    product.old_price = line.price_unit;
+                                }
                                 products.push(product);
                             }
                         });
@@ -155,6 +178,9 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                         exist_product.max_return_qty += line.qty;
                     } else {
                         product.max_return_qty = line.qty;
+                        if (line.price_unit !== product.price) {
+                            product.old_price = line.price_unit;
+                        }
                         products.push(product);
                     }
                 });
@@ -167,16 +193,26 @@ odoo.define('pos_orders_history_return.screens', function (require) {
 
     screens.ProductListWidget.include({
         render_product: function(product){
-            var cached = this._super(product);
             var order = this.pos.get_order();
+            this.return_mode = false;
+            if (order && order.get_mode() === "return") {
+                this.return_mode = true;
+            }
+            if (this.return_mode) {
+                this.product_cache.clear_node(product.id);
+            }
+            var cached = this._super(product);
             var el = $(cached).find('.max-return-qty');
             if (el.length) {
                 el.remove();
             }
-            if (order && order.get_mode() === "return" && typeof product.max_return_qty !== 'undefined') {
+            if (this.return_mode && typeof product.max_return_qty !== 'undefined') {
                 var current_return_qty = order.get_current_product_return_qty(product);
                 var qty = product.max_return_qty - current_return_qty;
                 $(cached).find('.product-img').append('<div class="max-return-qty">' + qty + '</div>');
+            }
+            if (this.return_mode) {
+                this.product_cache.clear_node(product.id);
             }
             return cached;
         },
