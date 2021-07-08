@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2004-2015 Odoo S.A.
 # Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
 # Copyright 2018 Ilmir Karamov <https://it-projects.info/team/ilmir-k>
@@ -7,14 +6,14 @@
     "name": """Sync Barcodes in POS""",
     "summary": """Update the partner data in POS instantly""",
     "category": "Point of Sale",
-    "live_test_url": "http://apps.it-projects.info/shop/product/pos-barcode-sync?version=10.0",
+    # "live_test_url": "http://apps.it-projects.info/shop/product/pos-barcode-sync?version=10.0",
     "images": ["images/pos_barcode_sync_main.jpeg"],
-    "version": "10.0.1.0.0",
+    "version": "12.0.1.0.0",
     "application": False,
 
     "author": "IT-Projects LLC, Kolushov Alexandr",
     "support": "pos@it-projects.info",
-    "website": "https://it-projects.info/team/KolushovAlexandr",
+    "website": "https://apps.odoo.com/apps/modules/12.0/pos_barcode_sync/",
     "license": "LGPL-3",
     "price": 29.00,
     "currency": "EUR",

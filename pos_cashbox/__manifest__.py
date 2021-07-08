@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Dinar Gabbasov <https://it-projects.info/team/GabbasovDinar>
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 {
     "name": """Open CashBox from Backend""",
     "summary": """The module allows to open Cashbox/Cashdrawer from Backend""",
     "category": "Point of Sale",
-    "live_test_url": "http://apps.it-projects.info/shop/product/pos-cashbox?version=10.0",
+    # "live_test_url": "http://apps.it-projects.info/shop/product/pos-cashbox?version=10.0",
     "images": ['images/pos_cashbox_main.png'],
     "version": "10.0.1.0.0",
     "application": False,
@@ -36,7 +35,7 @@
     "uninstall_hook": None,
 
     "auto_install": False,
-    "installable": True,
+    "installable": False,
 
     "demo_title": "Open CashBox from Backend",
     "demo_addons": [

@@ -68,12 +68,12 @@
                     <field name="user_id"/>
                     <group expand="1" string="Group By">
                         <filter string="Salesperson" name="User" context="{'group_by':'user_id'}"/>
-                        <filter string="Customer" context="{'group_by':'partner_id'}"/>
+                        <filter string="Customer" name="customer" context="{'group_by':'partner_id'}"/>
                         <separator/>
-                        <filter string="Month" context="{'group_by':'date:month'}"/>
-                        <filter string="Week" context="{'group_by':'date:week'}"/>
-                        <filter string="Day" context="{'group_by':'date:day'}"/>
-                        <filter string="Hour" context="{'group_by':'date:hour'}"/>
+                        <filter string="Month" name="month" context="{'group_by':'date:month'}"/>
+                        <filter string="Week" name="week" context="{'group_by':'date:week'}"/>
+                        <filter string="Day" name="day" context="{'group_by':'date:day'}"/>
+                        <filter string="Hour" name="hour" context="{'group_by':'date:hour'}"/>
                     </group>
                 </search>
             </field>
@@ -93,15 +93,8 @@
             <field name="model_id" ref="pos_debt_notebook.model_pos_credit_update"/>
             <field name="state">code</field>
             <field name="code">env['pos.credit.update'].do_confirm()</field>
+            <field name="binding_model_id" ref="pos_debt_notebook.model_pos_credit_update" />
         </record>
-
-        <record id="option_pos_credit_update" model="ir.values">
-            <field name="name">Confirm</field>
-            <field name="key2">client_action_multi</field>
-            <field name="model">pos.credit.update</field>
-            <field name="value" eval="'ir.actions.server,%d'%server_action_pos_credit_update"/>
-        </record>
-
 
         <menuitem id="menu_pos_credit_update" name="Manual Credit Updates" action="action_pos_credit_update" parent="point_of_sale.menu_point_config_product" groups="point_of_sale.group_pos_manager" sequence="100"/>
 </odoo>

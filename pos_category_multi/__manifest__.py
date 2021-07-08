@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 {
     "name": """Multiple categories per product in POS""",
     "summary": """Specify as many categories for a product as you need""",
     "category": "Point of Sale",
+    "version": "12.0.1.0.1",
     "images": [],
-    "version": "10.0.1.0.1",
-
     "author": "IT-Projects LLC, Pavel Romanchenko",
     "support": "pos@it-projects.info",
     "website": "https://it-projects.info",
@@ -22,6 +20,6 @@
         'view.xml',
     ],
     "demo": [],
-    "installable": True,
+    "installable": False,
     "auto_install": False,
 }

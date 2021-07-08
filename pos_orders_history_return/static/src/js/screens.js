@@ -16,14 +16,18 @@ odoo.define('pos_orders_history_return.screens', function (require) {
             var self = this;
             this._super();
             if (this.pos.config.return_orders) {
-                this.$('.actions.oe_hidden').removeClass('oe_hidden');
-                this.$('.button.return').unbind('click');
-                this.$('.button.return').click(function (e) {
-                    var parent = $(this).parents('.order-line');
-                    var id = parseInt(parent.data('id'));
-                    self.click_return_order_by_id(id);
-                });
+                this.set_return_action();
             }
+        },
+        set_return_action: function() {
+            var self = this;
+            this.$('.actions.oe_hidden').removeClass('oe_hidden');
+            this.$('.button.return').unbind('click');
+            this.$('.button.return').click(function (e) {
+                var parent = $(this).parents('.order-line');
+                var id = parseInt(parent.data('id'));
+                self.click_return_order_by_id(id);
+            });
         },
         renderElement: function() {
             this._super();
@@ -46,6 +50,9 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                 });
             }
             this._super(orders);
+            if (this.pos.config.return_orders) {
+                this.set_return_action();
+            }
         },
         click_return_order_by_id: function(id) {
             var self = this;
@@ -115,8 +122,10 @@ odoo.define('pos_orders_history_return.screens', function (require) {
                 json.statement_ids = [];
                 json.mode = "return";
                 json.return_lines = lines;
-                json.table_id = order.table_id[0];
-
+                json.pricelist_id = this.pos.default_pricelist.id;
+                if (order.table_id) {
+                    json.table_id = order.table_id[0];
+                }
                 var options = _.extend({pos: this.pos}, {json: json});
                 order = new models.Order({}, options);
                 order.temporary = true;
@@ -198,10 +207,14 @@ odoo.define('pos_orders_history_return.screens', function (require) {
             if (order && order.get_mode() === "return") {
                 this.return_mode = true;
             }
-            if (this.return_mode) {
-                this.product_cache.clear_node(product.id);
+            if (this.return_mode || (!this.return_mode && product.old_price)) {
+                var current_pricelist = this._get_active_pricelist();
+                var cache_key = this.calculate_cache_key(product, current_pricelist);
+                this.product_cache.clear_node(cache_key);
             }
+
             var cached = this._super(product);
+
             var el = $(cached).find('.max-return-qty');
             if (el.length) {
                 el.remove();

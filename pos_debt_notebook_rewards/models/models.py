@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
@@ -75,6 +74,7 @@ class PosCreditUpdateReward(models.Model):
 
 class RewardType(models.Model):
     _name = 'pos.credit.update.reward.type'
+    _description = 'Manual Credit Updates Type'
 
     name = fields.Char('Name', required=True)
     journal_id = fields.Many2one('account.journal', string='Journal', required=True,

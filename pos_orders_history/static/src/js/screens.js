@@ -8,6 +8,8 @@ odoo.define('pos_orders_history.screens', function (require) {
     var gui = require('point_of_sale.gui');
     var core = require('web.core');
     var QWeb = core.qweb;
+    var rpc = require('web.rpc');
+    var _t = core._t;
 
     screens.OrdersHistoryButton = screens.ActionButtonWidget.extend({
         template: 'OrdersHistoryButton',
@@ -65,6 +67,13 @@ odoo.define('pos_orders_history.screens', function (require) {
             this.$('.filters .table-filter').click(function (e) {
                 e.stopImmediatePropagation();
                 self.change_filter('table', $(this));
+            });
+
+            this.$('.button.update_history').off().click(function (e) {
+                self.pos.manual_update_order_history().then(function() {
+                    orders = self.pos.db.get_sorted_orders_history(1000);
+                    self.render_list(orders);
+                });
             });
 
             this.$('.order-list-contents').delegate('.order-line td', 'click', function (event) {
@@ -126,11 +135,9 @@ odoo.define('pos_orders_history.screens', function (require) {
         get_orders_by_filter: function(filter, orders) {
             var self = this;
             if (filter === "user") {
-                var user_id = this.pos.cashier
-                ? this.pos.cashier.id
-                : this.pos.user.id;
-                if (this.pos.cashier && this.pos.cashier.id) {
-                    user_id = this.pos.cashier.id;
+                var user_id = this.pos.user.id;
+                if (this.pos.get_cashier()) {
+                    user_id = this.pos.get_cashier().id;
                 }
                 return orders.filter(function(order) {
                     return order.user_id[0] === user_id;
@@ -310,6 +317,7 @@ odoo.define('pos_orders_history.screens', function (require) {
 
     screens.ScreenWidget.include({
         barcode_product_action: function(code) {
+            var self = this;
             // TODO: Check it
             var order = this.pos.db.get_sorted_orders_history(1000).find(function(o) {
                 var pos_reference = o.pos_reference &&
@@ -318,8 +326,40 @@ odoo.define('pos_orders_history.screens', function (require) {
                 return pos_reference === code.code.replace(/\-/g, '');
             });
             var screen_name = this.gui.get_current_screen();
-            if (order && screen_name === "orders_history_screen") {
-                this.search_order_on_history(order);
+            if (screen_name === "orders_history_screen") {
+                if (order) {
+                    this.search_order_on_history(order);
+                } else {
+                    // send request to server
+                    rpc.query({
+                        model: 'pos.order',
+                        method: 'search_read',
+                        args: [[['pos_history_reference_uid', '=', code.code]]]
+                    }).then(function(o) {
+                        if (o && o.length) {
+                            self.pos.update_orders_history(o);
+                            if (o instanceof Array) {
+                                o = o[0];
+                            }
+                            self.pos.get_order_history_lines_by_order_id(o.id).done(function (lines) {
+                                self.pos.update_orders_history_lines(lines);
+                                self.search_order_on_history(o);
+                            });
+                        } else {
+                            self.gui.show_popup('error',{
+                                'title': _t('Error: Could not find the Order'),
+                                'body': _t('There is no order with this barcode.')
+                            });
+                        }
+                    }, function(err, event) {
+                        event.preventDefault();
+                        console.error(err);
+                        self.gui.show_popup('error',{
+                            'title': _t('Error: Could not find the Order'),
+                            'body': err.data,
+                        });
+                    });
+                }
             } else {
                 this._super(code);
             }

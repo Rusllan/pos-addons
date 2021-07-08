@@ -14,6 +14,32 @@ odoo.define('pos_order_receipt_custom.models', function (require) {
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
+        initialize: function(){
+            var receipt_model = _.find(this.models, function(model) {
+                return model.model === 'pos.custom_receipt';
+            });
+            // update domain
+            receipt_model.domain = function(self) {
+                var domain = [];
+                var type = [];
+                if (self.config.custom_ticket) {
+                    type.push('ticket');
+                }
+                if (self.config.custom_xml_receipt) {
+                    type.push('receipt');
+                }
+                if (self.config.custom_kitchen_receipt) {
+                    type.push('order_receipt');
+                }
+                domain.push(['type','in',type]);
+                return domain;
+            };
+            // update condition
+            receipt_model.condition = function(self) {
+                return self.config.custom_ticket || self.config.custom_xml_receipt || self.config.custom_kitchen_receipt;
+            };
+            _super_posmodel.initialize.apply(this, arguments);
+        },
         transfer_order_to_different_table: function () {
             this.order_to_transfer_to_different_table = this.get_order();
             if (this.order_to_transfer_to_different_table) {
@@ -53,18 +79,38 @@ odoo.define('pos_order_receipt_custom.models', function (require) {
                         changes.products = products;
                         order.print_order_receipt(printer, changes);
                         order.printed_transfer = true;
+                        order.trigger('change', order);
+                        // For compatibility with the https://www.odoo.com/apps/modules/10.0/pos_multi_session/ module
+                        setTimeout(function() {
+                            order.trigger('new_updates_to_send');
+                        }, 0);
                     }
                 });
             }
         },
         get_order_product_list_of_printer: function(printer, order) {
+            var self = this;
             var orderlines = order.get_orderlines();
             var lines = orderlines.filter(function(line) {
-                if (_.contains(printer.config.product_categories_ids, line.product.pos_categ_id[0]) && line.mp_dirty === false) {
+                // for compatibility with pos_category_multi
+                if (line.product.pos_category_ids && line.product.pos_category_ids.length && line.mp_dirty === false) {
+                    var res = printer.config.product_categories_ids.filter(function(cat) {
+                        return line.product.pos_category_ids.indexOf(cat) !== -1;
+                    });
+                    if (res && res.length) {
+                        return true;
+                    }
+                }
+                // for compatibility with pos_order_printer_product
+                if(self.is_product_in_product_list && self.is_product_in_product_list(line.product.id, printer.config.product_ids) && line.mp_dirty === false) {
+                    return true;
+                }
+                if (line.product.pos_categ_id && _.contains(printer.config.product_categories_ids, line.product.pos_categ_id[0]) && line.mp_dirty === false) {
                     return true;
                 }
                 return false;
             });
+
             var products = [];
             lines.forEach(function(line) {
                 products.push({

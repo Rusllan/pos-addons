@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright 2017 Ivan Yelizariev <https://it-projects.info/team/yelizariev>
 # Copyright 2017 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
-
 import logging
 import json
 import time
@@ -16,6 +14,7 @@ _logger = logging.getLogger(__name__)
 
 class PosConfigSync(models.Model):
     _name = 'pos_multi_session_sync.pos'
+    _description = 'POS Config Sync'
 
     multi_session_ID = fields.Integer('Multi-session', index=True,
                                       help='Set the same value for POSes where orders should be synced. '
@@ -28,6 +27,7 @@ class PosConfigSync(models.Model):
 
 class PosMultiSessionSync(models.Model):
     _name = 'pos_multi_session_sync.multi_session'
+    _description = 'POS Multi Session Sync'
 
     multi_session_ID = fields.Integer('Multi-session', index=True,
                                       help='Set the same value for POSes where orders should be synced. '
@@ -279,6 +279,7 @@ class PosMultiSessionSync(models.Model):
 
 class PosMultiSessionSyncOrder(models.Model):
     _name = 'pos_multi_session_sync.order'
+    _description = 'POS Multi Session Sync Order'
 
     order = fields.Text('Order JSON format')
     nonce = fields.Char('Random nonce')

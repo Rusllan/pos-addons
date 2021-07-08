@@ -16,7 +16,8 @@ odoo.define('pos_product_available_negative.tour', function (require) {
         }, {
             content: "Switch to table or make dummy action",
             trigger: '.table:not(.oe_invisible .neworder-button), .order-button.selected',
-            position: "bottom"
+            position: "bottom",
+            timeout: 20000,
         }, {
             content: 'waiting for loading to finish',
             trigger: '.order-button.neworder-button',
@@ -72,16 +73,22 @@ odoo.define('pos_product_available_negative.tour', function (require) {
         }];
     }
 
-    var steps = [{
-            trigger: '.o_app[data-menu-xmlid="point_of_sale.menu_point_root"], .oe_menu_toggler[data-menu-xmlid="point_of_sale.menu_point_root"]',
-            content: _t("Ready to launch your <b>point of sale</b>? <i>Click here</i>."),
-            position: 'bottom',
-        }];
+    var steps = [tour.STEPS.SHOW_APPS_MENU_ITEM, {
+        trigger: '.o_app[data-menu-xmlid="point_of_sale.menu_point_root"]',
+        content: _t("Ready to launch your <b>point of sale</b>? <i>Click here</i>."),
+        position: 'right',
+        edition: 'community'
+    }, {
+        trigger: '.o_app[data-menu-xmlid="point_of_sale.menu_point_root"]',
+        content: _t("Ready to launch your <b>point of sale</b>? <i>Click here</i>."),
+        position: 'bottom',
+        edition: 'enterprise'
+    }];
 
     steps = steps.concat(open_pos_neworder());
-    steps = steps.concat(add_product_to_order('Yellow Peppers'));
-    steps = steps.concat(change_cashier('Demo User'));
-    steps = steps.concat(payment('Demo User', 'Cash (USD)'));
+    steps = steps.concat(add_product_to_order('LED Lamp'));
+    steps = steps.concat(change_cashier('Marc Demo'));
+    steps = steps.concat(payment('Marc Demo', 'Cash (USD)'));
     steps = steps.concat(check_popup());
 
     tour.register('tour_pos_product_available_negative', { test: true, url: '/web' }, steps);

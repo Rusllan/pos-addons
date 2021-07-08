@@ -1,10 +1,11 @@
 /* Copyright 2018 Dinar Gabbasov <https://it-projects.info/team/GabbasovDinar>
+ * Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
  * License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html). */
 odoo.define('pos_orders_history_reprint.models', function (require) {
     "use strict";
     var models = require('pos_orders_history.models');
-    var Model = require('web.Model');
-    var longpolling = require('pos_longpolling');
+    var rpc = require('web.rpc');
+    var longpolling = require('pos_longpolling.connection');
 
     var _super_pos_model = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
@@ -22,7 +23,11 @@ odoo.define('pos_orders_history_reprint.models', function (require) {
             });
         },
         get_order_history_receipt: function (id) {
-            return new Model('pos.xml_receipt').call('search_read', [[['id', '=', id]]]);
+            return rpc.query({
+                model: 'pos.xml_receipt',
+                method: 'search_read',
+                args: [[['id', '=', id]]]
+            });
         },
         get_receipt_by_id: function(id) {
             return this.orders_history_receipt.find(function(receipt){
@@ -55,16 +60,27 @@ odoo.define('pos_orders_history_reprint.models', function (require) {
         }
     });
 
-    models.load_models({
+    models.load_models([{
         model: 'pos.xml_receipt',
-        fields: [],
+        fields: ['id', 'receipt', 'pos_reference', 'receipt_type', 'status'],
         domain: function(self) {
-            // load all active receipts
-            return [['status','in',true]];
+            var orders = self.db.sorted_orders;
+            var pos_reference = _.map(orders, function(order) {
+                return order.pos_reference;
+            });
+            // load all receipts for the orders history
+            return [['pos_reference','in',pos_reference]];
+        },
+        condition: function(self) {
+            return self.config.orders_history && !self.config.load_barcode_order_only;
         },
         loaded: function (self, receipts) {
-            self.update_orders_history_receipt(receipts);
+            if (receipts && receipts.length) {
+                self.update_orders_history_receipt(receipts);
+            }
         },
+    }], {
+        'after': 'pos.order'
     });
 
     return models;

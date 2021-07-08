@@ -14,10 +14,9 @@ odoo.define('pos_multi_session', function(require){
     var core = require('web.core');
     var screens = require('point_of_sale.screens');
     var models = require('point_of_sale.models');
-    var bus = require('bus.bus');
     var chrome = require('point_of_sale.chrome');
-    var longpolling = require('pos_longpolling');
-    var Model = require('web.Model');
+    var longpolling = require('pos_longpolling.connection');
+    var rpc = require('web.rpc');
     var PosBaseWidget = require('point_of_sale.BaseWidget');
     var gui = require('point_of_sale.gui');
     var framework = require('web.framework');
@@ -208,7 +207,7 @@ odoo.define('pos_multi_session', function(require){
             }
         },
         ms_my_info: function(){
-            var user = this.cashier || this.user;
+            var user = this.get_cashier() || this.user;
             return {
                 'user': {
                     'id': user.id,
@@ -442,22 +441,25 @@ odoo.define('pos_multi_session', function(require){
             var fields = _.find(this.models,function(model){
                 return model.model === 'res.partner';
             }).fields;
-            new Model('res.partner').
-                query(fields).
-                filter([['id','=',partner_id]]).
-                all({'timeout':3000, 'shadow': true}).
-                then(function(partners){
+            var domain = [['id','=',partner_id]];
+            rpc.query({
+                    model: 'res.partner',
+                    method: 'search_read',
+                    args: [domain, fields],
+                }, {
+                    timeout: 3000,
+                    shadow: true,
+                }).then(function(partners){
                      // check if the partners we got were real updates
                     if (self.db.add_partners(partners)) {
                         def.resolve();
                     } else {
                         def.reject();
                     }
-                }, function(err,event){
+                }, function(type,err){
                     if (err) {
                         console.log(err);
                     }
-                    event.preventDefault();
                     def.reject();
                 });
             return def;
@@ -623,8 +625,8 @@ odoo.define('pos_multi_session', function(require){
                 this.pos.pos_session.order_ID = this.pos.pos_session.order_ID + 1;
                 this.trigger('change:update_new_order');
             } else {
-                // 'change' trigger saves order to db
-                this.trigger('change');
+                // save order to the local storage
+                this.save_to_db();
             }
             if (!this.ms_active()){
                 return;
@@ -899,14 +901,14 @@ odoo.define('pos_multi_session', function(require){
             var self = this;
             message.data.pos_id = this.pos.config.id;
             message.data.nonce = this.get_nonce();
-            message.session_id = this.pos.pos_session.id
+            message.session_id = this.pos.pos_session.id;
             message.login_number = this.pos.pos_session.login_number;
             var send_it = function () {
                 var temp = self.pos.config.sync_server || '';
                 if (options.address) {
                     temp = options.address.serv;
                 }
-                return openerp.session.rpc(temp + "/pos_multi_session_sync/update", {
+                return session.rpc(temp + "/pos_multi_session_sync/update", {
                     multi_session_id: self.pos.config.multi_session_id[0],
                     message: message,
                     dbname: session.db,

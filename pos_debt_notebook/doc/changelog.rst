@@ -1,3 +1,16 @@
+`5.1.3`
+-------
+- **FIX:** Error related to pos loading with the lack of customers
+
+`5.1.2`
+-------
+- **FIX:** Availability to buy credit top-up products with discount credits
+- **FIX:** Error related to automatic receipt printing
+- **ADD:** Mandatory Payment Method selection for return orders
+- **FIX:** Compatibility with pos_category_multi
+- **FIX:** Unavailability to cash out credits from journals with defined category
+- **FIX:** Errors on loading debts on POS opening were ignored
+
 `5.1.1`
 -------
 - **FIX:** Compatibility with pos_orders_history_return module
@@ -8,9 +21,24 @@
 - **FIX:** Error related to paying with not discount credit journals in POS
 - **FIX:** Invoices paid with credit journals now counts in partner debts
 
+`5.0.5`
+-------
+
+- **FIX:** Error on module deleting
+- **FIX:** Error related to invoices created in the "Generate POS Credit Invoices" wizard. Invoices were created with wrong type.
+
+`5.0.4`
+-------
+
+- **FIX:** compatibility with pos_category_multi
+- **FIX:** Error after clicking "Show Debt History" for a customer
+
 `5.0.3`
 -------
-- **FIX:** Error related to invoices created in the "Generate POS Credit Invoices" wizard. Invoices were created with wrong type.
+
+- **FIX:** Compatibility with other pos modules
+- **FIX:** Error message displaying on discount credit paymentlines with zero price 
+- **FIX:** Lost overrides of the `order` and `session` forms
 
 `5.0.2`
 -------

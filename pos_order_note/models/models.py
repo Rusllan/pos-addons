@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from odoo import fields, models
 
 
@@ -9,6 +8,7 @@ class ProductTemplate(models.Model):
 
 class PosProductNotes(models.Model):
     _name = "pos.product_notes"
+    _description = "POS Product Notes"
 
     sequence = fields.Integer(string="Sequence")
     name = fields.Char(string="Note")

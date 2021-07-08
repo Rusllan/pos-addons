@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2015-2016 Ivan Yelizariev <https://it-projects.info/team/yelizariev>
 # Copyright 2016 Ilyas Rakhimkulov
 # Copyright 2017 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
@@ -44,6 +43,7 @@ class PosConfig(models.Model):
 
 class PosMultiSession(models.Model):
     _name = 'pos.multi_session'
+    _description = 'POS Multi Session'
 
     name = fields.Char('Name')
     multi_session_active = fields.Boolean(string="Active", help="Select the checkbox to enable synchronization for POSes", default=True)

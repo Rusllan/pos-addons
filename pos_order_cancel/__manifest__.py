@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 {
     "name": """Saving removed products of POS order""",
     "summary": """Store all cases of product removing and allow to specify reasons for it""",
     "category": "Point of Sale",
     "images": ["images/pos_order_cancel.png"],
-    "version": "10.0.1.2.2",
+    "version": "12.0.1.2.3",
     "application": False,
 
     "author": "IT-Projects LLC, Dinar Gabbasov",
     "support": "pos@it-projects.info",
-    "website": "https://twitter.com/gabbasov_dinar",
+    "website": "https://apps.odoo.com/apps/modules/12.0/pos_order_cancel/",
     "license": "LGPL-3",
     "price": 200.00,
     "currency": "EUR",

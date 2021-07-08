@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from odoo import fields, models, api
 from functools import partial
 from datetime import datetime
@@ -7,6 +6,7 @@ import pytz
 
 class PosCancelledReason(models.Model):
     _name = "pos.cancelled_reason"
+    _description = "Cancelled Reason"
 
     sequence = fields.Integer(string="Sequence")
     name = fields.Char(string="Reason", translate=True)
@@ -22,10 +22,10 @@ class PosOrder(models.Model):
     canceled_lines = fields.One2many("pos.order.line.canceled", "order_id", string="Canceled Lines")
     computed_state = fields.Selection(
         [('draft', 'New'), ('cancel', 'Cancelled'), ('paid', 'Paid'), ('done', 'Posted'), ('invoiced', 'Invoiced')],
-        'Status', compute='_compute_state')
+        'State', compute='_compute_state')
 
-    cancelled_amount_tax = fields.Float(compute='_compute_cancelled_amount_all', string='Taxes', digits=0)
-    cancelled_amount_total = fields.Float(compute='_compute_cancelled_amount_all', string='Total', digits=0, default=0)
+    cancelled_amount_tax = fields.Float(compute='_compute_cancelled_amount_all', string='Cancelled Taxes', digits=0)
+    cancelled_amount_total = fields.Float(compute='_compute_cancelled_amount_all', string='Cancelled Total', digits=0, default=0)
 
     @api.depends('canceled_lines', 'canceled_lines.price_subtotal_incl', 'canceled_lines.discount')
     def _compute_cancelled_amount_all(self):
@@ -57,7 +57,7 @@ class PosOrder(models.Model):
         order = super(PosOrder, self)._process_order(pos_order)
         if 'is_cancelled' in pos_order and pos_order['is_cancelled'] is True:
             if pos_order['reason']:
-                order.cancellation_reason = pos_order['reason'].encode('utf-8').strip(" \t\n")
+                order.cancellation_reason = pos_order['reason'].encode('utf-8')
             order.is_cancelled = True
         return order
 
@@ -88,6 +88,7 @@ class PosOrder(models.Model):
 
 class PosOrderLineCanceled(models.Model):
     _name = "pos.order.line.canceled"
+    _description = "Order Line Canceled"
     _rec_name = "product_id"
 
     def _order_cancel_line_fields(self, line):

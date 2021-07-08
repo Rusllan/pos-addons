@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2017 Ivan Yelizariev <https://it-projects.info/team/yelizariev>
 # Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
@@ -25,7 +24,10 @@ class PosCreditInvoices(models.TransientModel):
         ('pay_per_employee', 'Pay same amount for each employee'),
         ('custom', 'Custom amount per each employee'),
     ], default='custom', required=True)
-    line_ids = fields.One2many('pos.credit.invoices.company.line', 'wizard_id')
+    line_ids = fields.Many2many('pos.credit.invoices.company.line',
+                                relation='pos_cr_inv_comp_line_ids_rel',
+                                column1='pos_credit_invoices_company_id',
+                                column2='pos_credit_invoices_company_line_id')
     total = fields.Float('Total to pay', compute='_compute_total')
 
     @api.onchange('partner_id', 'amount', 'payment_type')
@@ -57,6 +59,9 @@ class PosCreditInvoices(models.TransientModel):
 
     @api.multi
     def apply(self):
+        if self.line_ids and self.line_ids[0] and not self.line_ids[0].partner_id:
+            # some strange case when data does not pass from form and lines are created empty
+            self.update_lines()
         product = self.product_id
         account = product.property_account_income_id or product.categ_id.property_account_income_categ_id
         for line in self.line_ids:
@@ -78,6 +83,7 @@ class PosCreditInvoices(models.TransientModel):
 class PosCreditInvoicesLine(models.TransientModel):
     _name = 'pos.credit.invoices.company.line'
     _order = 'is_company DESC, partner_name'
+    _description = 'Partner invoice lines'
 
     wizard_id = fields.Many2one('pos.credit.invoices.company')
     partner_id = fields.Many2one('res.partner', 'Partner', readonly=True)

@@ -3,7 +3,6 @@ odoo.define('pos_order_cancel_restaurant.models', function (require) {
 
     var models = require('pos_order_cancel.models');
     var multiprint = require('pos_restaurant_base.models');
-    var Model = require('web.DataModel');
     var core = require('web.core');
     var QWeb = core.qweb;
     var _t = core._t;
@@ -63,8 +62,11 @@ odoo.define('pos_order_cancel_restaurant.models', function (require) {
             });
             var new_lines = [];
             unique_categories_ids.forEach(function(id){
-                lines.forEach(function(line){
-                    if (line.product.pos_categ_id[0] === id) {
+                lines.forEach(function(line) {
+                    // for compatibility with pos_category_multi
+                    if (line.product.pos_category_ids && line.product.pos_category_ids.indexOf(id) !== -1) {
+                        new_lines.push(line);
+                    } else if (line.product.pos_categ_id && line.product.pos_categ_id[0] === id) {
                         new_lines.push(line);
                     }
                 });
